@@ -1,4 +1,4 @@
--<!DOCTYPE html>
+<!DOCTYPE html>
 <html lang="es">
 <head>
     <meta charset="UTF-8">
@@ -13,13 +13,16 @@
             align-items: center;
             height: 100vh;
             margin: 0;
-            background-color: #f2f4f8;
+            background-image: C:\Users\ramon\OneDrive\Escritorio\app lista compra; /* Cambia esto a la ruta de tu imagen */
+            background-size: cover; /* Para cubrir toda la pantalla */
+            background-position: center; /* Centrar la imagen */
+            background-repeat: no-repeat; /* Evitar que la imagen se repita */
             color: #333;
         }
         #app {
             width: 90%;
             max-width: 400px;
-            background-color: #ffffff;
+            background-color: rgba(255, 255, 255, 0.8); /* Fondo semitransparente */
             padding: 20px;
             border-radius: 10px;
             box-shadow: 0 4px 12px rgba(0, 0, 0, 0.15);
@@ -112,7 +115,6 @@
         .toggle:hover { background-color: #e0a800; }
         .delete { background-color: #dc3545; }
         .delete:hover { background-color: #c82333; }
-
     </style>
     <!-- Firebase App -->
     <script src="https://www.gstatic.com/firebasejs/8.6.8/firebase-app.js"></script>
@@ -141,30 +143,18 @@
             appId: "1:427885773780:web:fe080ad539f1d735854c41",
             measurementId: "G-BGYH085F18"
         };
-
+        
         // Inicializar Firebase
         firebase.initializeApp(firebaseConfig);
         const db = firebase.database().ref("shoppingList");
 
         // Función para agregar artículo
-        const addItem = () => {
+        document.getElementById("addButton").addEventListener("click", () => {
             const itemInput = document.getElementById("itemInput");
-            const itemName = itemInput.value.trim();  // Limpiar espacios
+            const itemName = itemInput.value.trim();
             if (itemName) {
-                db.push({ name: itemName, bought: false });  // Guardar en Firebase
-                itemInput.value = "";  // Limpiar input
-            } else {
-                alert("Escribe un artículo para agregar");  // Mostrar alerta si está vacío
-            }
-        };
-
-        // Botón para añadir artículo
-        document.getElementById("addButton").addEventListener("click", addItem);
-
-        // Permitir agregar con tecla "Enter"
-        document.getElementById("itemInput").addEventListener("keydown", (event) => {
-            if (event.key === "Enter") {
-                addItem();
+                db.push({ name: itemName, bought: false });
+                itemInput.value = "";
             }
         });
 
@@ -178,20 +168,10 @@
             recognition.lang = 'es-ES';  // Idioma español
             recognition.interimResults = false;
 
-            recognition.onstart = () => {
-                console.log("Reconocimiento de voz iniciado.");
-            };
-
             // Evento cuando se detecta un resultado de voz
             recognition.onresult = (event) => {
                 const transcript = event.results[0][0].transcript;
                 itemInput.value = transcript;
-                console.log("Texto reconocido:", transcript);
-            };
-
-            // Manejo de errores de reconocimiento de voz
-            recognition.onerror = (event) => {
-                console.error("Error en el reconocimiento de voz:", event.error);
             };
 
             // Iniciar reconocimiento de voz al hacer clic en el botón de micrófono
@@ -201,7 +181,7 @@
         } else {
             // Si el navegador no soporta la API, deshabilitamos el botón de voz
             voiceButton.disabled = true;
-            alert("Tu navegador no soporta el reconocimiento de voz.");
+            voiceButton.title = "Tu navegador no soporta el reconocimiento de voz.";
         }
 
         // Renderizar lista en tiempo real
