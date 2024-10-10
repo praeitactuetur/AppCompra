@@ -5,83 +5,92 @@
     <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
     <title>Lista de la Compra</title>
     <style>
-        /* Estilos básicos */
-        /* ... mismo estilo de antes ... */
-    </style>
-    <!-- Firebase App -->
-    <script src="https://www.gstatic.com/firebasejs/8.6.8/firebase-app.js"></script>
-    <script src="https://www.gstatic.com/firebasejs/8.6.8/firebase-database.js"></script>
-    <script src="https://www.gstatic.com/firebasejs/8.6.8/firebase-messaging.js"></script>
-</head>
-<body>
-    <div id="app">
-        <h2>Lista de la Compra</h2>
-        <input type="text" id="itemInput" placeholder="Añadir artículo...">
-        <button id="addButton">Añadir a la lista</button>
-        <button id="exportButton">Exportar Lista</button>
-        <input type="file" id="importFile" style="display:none">
-        <button id="importButton">Importar Lista</button>
-        <ul id="shoppingList"></ul>
-    </div>
+        /* Fondo y contenedor central */
+        body {
+            font-family: Arial, sans-serif;
+            display: flex;
+            justify-content: center;
+            align-items: center;
+            height: 100vh;
+            margin: 0;
+            background-color: #f2f4f8;
+            color: #333;
+        }
+        #app {
+            width: 90%;
+            max-width: 400px;
+            background-color: #ffffff;
+            padding: 20px;
+            border-radius: 10px;
+            box-shadow: 0 4px 12px rgba(0, 0, 0, 0.15);
+            text-align: center;
+        }
 
-    <script>
-        // Configuración de Firebase
-        const firebaseConfig = {
-            apiKey: "AIzaSyAr-t7HI2o9Ty-Bj4lprXOp0RVRQaMW3qg",
-            authDomain: "lista-de-la-compra-6fbd5.firebaseapp.com",
-            databaseURL: "https://lista-de-la-compra-6fbd5-default-rtdb.firebaseio.com",
-            projectId: "lista-de-la-compra-6fbd5",
-            storageBucket: "lista-de-la-compra-6fbd5.appspot.com",
-            messagingSenderId: "427885773780",
-            appId: "1:427885773780:web:fe080ad539f1d735854c41",
-            measurementId: "G-BGYH085F18"
-        };
-        
-        // Inicializar Firebase
-        firebase.initializeApp(firebaseConfig);
-        const db = firebase.database().ref("shoppingList");
+        /* Título y entrada */
+        h2 {
+            color: #333;
+            margin-bottom: 15px;
+        }
+        #itemInput {
+            width: 100%;
+            padding: 12px;
+            margin-bottom: 10px;
+            border: 1px solid #ddd;
+            border-radius: 8px;
+            font-size: 1em;
+            outline: none;
+        }
 
-        // Inicializar Firebase Cloud Messaging
-        const messaging = firebase.messaging();
-        messaging.getToken({ vapidKey: 'YOUR_PUBLIC_VAPID_KEY' })
-            .then((currentToken) => {
-                if (currentToken) {
-                    console.log('Token de FCM:', currentToken);
-                } else {
-                    console.log('No hay token de registro disponible. Solicite permiso para generar uno.');
-                }
-            }).catch((err) => {
-                console.error('Error al obtener token', err);
-            });
+        /* Botón de agregar */
+        #addButton {
+            width: 100%;
+            padding: 12px;
+            font-size: 1em;
+            background-color: #28a745;
+            color: white;
+            border: none;
+            border-radius: 8px;
+            cursor: pointer;
+            transition: background-color 0.3s;
+        }
+        #addButton:hover {
+            background-color: #218838;
+        }
 
-        // Solicitar permiso para notificaciones
-        messaging.requestPermission()
-            .then(() => messaging.getToken())
-            .then((token) => console.log("Token de notificación:", token))
-            .catch((err) => console.error("No se otorgaron permisos de notificación", err));
+        /* Lista de artículos */
+        ul {
+            list-style-type: none;
+            padding: 0;
+            margin-top: 15px;
+            max-height: 50vh;
+            overflow-y: auto;
+        }
+        li {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            padding: 10px 15px;
+            margin-top: 10px;
+            background-color: #f9f9f9;
+            border-radius: 8px;
+            box-shadow: 0 2px 5px rgba(0, 0, 0, 0.1);
+        }
 
-        // Función para agregar artículo
-        document.getElementById("addButton").addEventListener("click", () => {
-            const itemInput = document.getElementById("itemInput");
-            const itemName = itemInput.value.trim();
-            if (itemName) {
-                db.push({ name: itemName, bought: false });
-                itemInput.value = "";
-            }
-        });
+        /* Estilo de artículo comprado */
+        .bought {
+            text-decoration: line-through;
+            color: grey;
+        }
 
-        // Notificación al agregar artículos en tiempo real
-        db.on("child_added", (snapshot) => {
-            const item = snapshot.val();
-            if (Notification.permission === "granted") {
-                new Notification("Nuevo artículo agregado", {
-                    body: `Artículo: ${item.name}`,
-                });
-            }
-        });
-
-        // Resto del código para mostrar la lista, exportar e importar
-        // ...
-    </script>
-</body>
-</html>
+        /* Botones de acciones */
+        .button {
+            padding: 8px;
+            font-size: 0.9em;
+            cursor: pointer;
+            border: none;
+            border-radius: 5px;
+            color: white;
+        }
+        .toggle { background-color: #ffc107; }
+        .toggle:hover { background-color: #e0a800; }
+        .delete { b
