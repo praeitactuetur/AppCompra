@@ -8,7 +8,7 @@
         /* Ajustes de diseño */
         body { font-family: Arial, sans-serif; display: flex; justify-content: center; align-items: center; height: 100vh; margin: 0; background-color: #f4f4f9; }
         #app { width: 90%; max-width: 400px; background-color: rgba(255, 255, 255, 0.9); padding: 15px; border-radius: 10px; box-shadow: 0 4px 8px rgba(0, 0, 0, 0.3); text-align: center; }
-        input, select, button { width: 100%; padding: 10px; font-size: 1em; margin-top: 10px; border: none; border-radius: 5px; }
+        input, button { width: 100%; padding: 10px; font-size: 1em; margin-top: 10px; border: none; border-radius: 5px; }
         #addButton { background-color: #28a745; color: white; }
         #addButton:hover { background-color: #218838; }
         ul { list-style-type: none; padding: 0; margin-top: 15px; max-height: 50vh; overflow-y: auto; }
@@ -28,14 +28,6 @@
     <div id="app">
         <h2>Lista de la Compra</h2>
         <input type="text" id="itemInput" placeholder="Añadir artículo...">
-        <input type="number" id="quantityInput" placeholder="Cantidad" min="1" value="1">
-        <select id="categoryInput">
-            <option value="General">General</option>
-            <option value="Frutas y Verduras">Frutas y Verduras</option>
-            <option value="Lácteos">Lácteos</option>
-            <option value="Carnes">Carnes</option>
-            <option value="Panadería">Panadería</option>
-        </select>
         <button id="addButton">Añadir a la lista</button>
         <ul id="shoppingList"></ul>
     </div>
@@ -57,20 +49,13 @@
         firebase.initializeApp(firebaseConfig);
         const db = firebase.database().ref("shoppingList");
 
-        // Agregar artículo con categoría y cantidad
+        // Función para agregar artículo
         document.getElementById("addButton").addEventListener("click", () => {
             const itemInput = document.getElementById("itemInput");
-            const quantityInput = document.getElementById("quantityInput");
-            const categoryInput = document.getElementById("categoryInput");
             const itemName = itemInput.value.trim();
-            const quantity = quantityInput.value || 1;
-            const category = categoryInput.value;
-
             if (itemName) {
-                db.push({ name: itemName, quantity: quantity, category: category, bought: false });
+                db.push({ name: itemName, bought: false });
                 itemInput.value = "";
-                quantityInput.value = 1;
-                categoryInput.value = "General";
             }
         });
 
@@ -85,9 +70,9 @@
                 const li = document.createElement("li");
                 li.className = item.bought ? "bought" : "";
 
-                // Mostrar nombre, cantidad y categoría
+                // Mostrar nombre del artículo
                 const itemText = document.createElement("span");
-                itemText.textContent = `${item.name} - ${item.quantity} (${item.category})`;
+                itemText.textContent = item.name;
                 li.appendChild(itemText);
 
                 // Botones de marcar y eliminar
@@ -113,6 +98,10 @@
                 shoppingList.appendChild(li);
             });
         });
+    </script>
+</body>
+</html>
+
     </script>
 </body>
 </html>
