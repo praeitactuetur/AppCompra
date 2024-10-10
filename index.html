@@ -31,14 +31,30 @@
             color: #333;
             margin-bottom: 15px;
         }
+        #inputContainer {
+            position: relative;
+            display: flex;
+            align-items: center;
+        }
         #itemInput {
             width: 100%;
             padding: 12px;
-            margin-bottom: 10px;
             border: 1px solid #ddd;
             border-radius: 8px;
             font-size: 1em;
             outline: none;
+        }
+
+        /* Botón de micrófono */
+        #voiceButton {
+            position: absolute;
+            right: 5px;
+            background-color: transparent;
+            border: none;
+            cursor: pointer;
+            font-size: 1.2em;
+            color: #333;
+            padding: 5px;
         }
 
         /* Botón de agregar */
@@ -46,6 +62,7 @@
             width: 100%;
             padding: 12px;
             font-size: 1em;
+            margin-top: 10px;
             background-color: #28a745;
             color: white;
             border: none;
@@ -93,4 +110,63 @@
         }
         .toggle { background-color: #ffc107; }
         .toggle:hover { background-color: #e0a800; }
-        .delete { b
+        .delete { background-color: #dc3545; }
+        .delete:hover { background-color: #c82333; }
+
+    </style>
+    <!-- Firebase App -->
+    <script src="https://www.gstatic.com/firebasejs/8.6.8/firebase-app.js"></script>
+    <script src="https://www.gstatic.com/firebasejs/8.6.8/firebase-database.js"></script>
+</head>
+<body>
+    <div id="app">
+        <h2>Lista de la Compra</h2>
+        <div id="inputContainer">
+            <input type="text" id="itemInput" placeholder="Añadir artículo...">
+            <button id="voiceButton">🎤</button>
+        </div>
+        <button id="addButton">Añadir a la lista</button>
+        <ul id="shoppingList"></ul>
+    </div>
+
+    <script>
+        // Configuración de Firebase
+        const firebaseConfig = {
+            apiKey: "AIzaSyAr-t7HI2o9Ty-Bj4lprXOp0RVRQaMW3qg",
+            authDomain: "lista-de-la-compra-6fbd5.firebaseapp.com",
+            databaseURL: "https://lista-de-la-compra-6fbd5-default-rtdb.firebaseio.com",
+            projectId: "lista-de-la-compra-6fbd5",
+            storageBucket: "lista-de-la-compra-6fbd5.appspot.com",
+            messagingSenderId: "427885773780",
+            appId: "1:427885773780:web:fe080ad539f1d735854c41",
+            measurementId: "G-BGYH085F18"
+        };
+        
+        // Inicializar Firebase
+        firebase.initializeApp(firebaseConfig);
+        const db = firebase.database().ref("shoppingList");
+
+        // Función para agregar artículo
+        document.getElementById("addButton").addEventListener("click", () => {
+            const itemInput = document.getElementById("itemInput");
+            const itemName = itemInput.value.trim();
+            if (itemName) {
+                db.push({ name: itemName, bought: false });
+                itemInput.value = "";
+            }
+        });
+
+        // Integrar API de Reconocimiento de Voz
+        const voiceButton = document.getElementById("voiceButton");
+        const itemInput = document.getElementById("itemInput");
+
+        // Verificar si el navegador soporta la API de reconocimiento de voz
+        if ('webkitSpeechRecognition' in window) {
+            const recognition = new webkitSpeechRecognition();
+            recognition.lang = 'es-ES';  // Idioma español
+            recognition.interimResults = false;
+
+            // Evento cuando se detecta un resultado de voz
+            recognition.onresult = (event) => {
+                const transcript = event.results[0][0].transcript
+
