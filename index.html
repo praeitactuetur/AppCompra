@@ -2,121 +2,15 @@
 <html lang="es">
 <head>
     <meta charset="UTF-8">
-    <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
-    <title>Lista de la Compra</title>
-    <style>
-        body {
-            font-family: Arial, sans-serif;
-            display: flex;
-            justify-content: center;
-            align-items: center;
-            height: 100vh;
-            margin: 0;
-            background-color: #f2f4f8;
-            color: #333;
-        }
-        #app {
-            width: 90%;
-            max-width: 400px;
-            background-color: #ffffff;
-            padding: 20px;
-            border-radius: 10px;
-            box-shadow: 0 4px 12px rgba(0, 0, 0, 0.15);
-            text-align: center;
-        }
-        h2 {
-            color: #333;
-            margin-bottom: 15px;
-        }
-        #inputContainer {
-            position: relative;
-            display: flex;
-            align-items: center;
-        }
-        #itemInput {
-            width: 100%;
-            padding: 12px;
-            border: 1px solid #ddd;
-            border-radius: 8px;
-            font-size: 1em;
-            outline: none;
-        }
-        #voiceButton {
-            position: absolute;
-            right: 5px;
-            background-color: transparent;
-            border: none;
-            cursor: pointer;
-            font-size: 1.2em;
-            color: #333;
-            padding: 5px;
-        }
-        #addButton, #newListButton {
-            width: 100%;
-            padding: 12px;
-            font-size: 1em;
-            margin-top: 10px;
-            background-color: #28a745;
-            color: white;
-            border: none;
-            border-radius: 8px;
-            cursor: pointer;
-            transition: background-color 0.3s;
-        }
-        #addButton:hover, #newListButton:hover {
-            background-color: #218838;
-        }
-        ul {
-            list-style-type: none;
-            padding: 0;
-            margin-top: 15px;
-            max-height: 50vh;
-            overflow-y: auto;
-        }
-        li {
-            display: flex;
-            justify-content: space-between;
-            align-items: center;
-            padding: 10px 15px;
-            margin-top: 10px;
-            background-color: #f9f9f9;
-            border-radius: 8px;
-            box-shadow: 0 2px 5px rgba(0, 0, 0, 0.1);
-        }
-        .bought {
-            text-decoration: line-through;
-            color: grey;
-        }
-        .button {
-            padding: 8px;
-            font-size: 0.9em;
-            cursor: pointer;
-            border: none;
-            border-radius: 5px;
-            color: white;
-        }
-        .toggle { background-color: #ffc107; }
-        .toggle:hover { background-color: #e0a800; }
-        .delete { background-color: #dc3545; }
-        .delete:hover { background-color: #c82333; }
-    </style>
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Prueba de Conexión a Firebase</title>
     <script src="https://www.gstatic.com/firebasejs/8.6.8/firebase-app.js"></script>
     <script src="https://www.gstatic.com/firebasejs/8.6.8/firebase-database.js"></script>
     <script src="https://www.gstatic.com/firebasejs/8.6.8/firebase-auth.js"></script>
 </head>
 <body>
-    <div id="app">
-        <h2>Lista de la Compra</h2>
-        <button id="newListButton">Lista Nueva</button>
-        <div id="inputContainer">
-            <input type="text" id="itemInput" placeholder="Añadir artículo...">
-            <button id="voiceButton">🎤</button>
-        </div>
-        <button id="addButton">Añadir a la lista</button>
-        <div id="listTitle"></div>
-        <ul id="shoppingList"></ul>
-    </div>
-
+    <h1>Prueba de Conexión a Firebase</h1>
+    <button id="testButton">Guardar Dato de Prueba</button>
     <script>
         // Configuración de Firebase
         const firebaseConfig = {
@@ -132,21 +26,18 @@
         
         // Inicializar Firebase
         firebase.initializeApp(firebaseConfig);
-        
-        // Probar conexión a Firebase
+
+        // Prueba de conexión a Firebase Database
         firebase.database().ref(".info/connected").on("value", (snapshot) => {
             if (snapshot.val() === true) {
-                console.log("Conexión exitosa a Firebase");
+                console.log("Conexión exitosa a Firebase Database");
             } else {
-                console.error("No se pudo conectar a Firebase");
+                console.error("No se pudo conectar a Firebase Database");
             }
         });
 
-        const db = firebase.database().ref("shoppingLists");
-        let userId;
-        let currentListId = null;
-
-        // Autenticación anónima para identificar al usuario
+        // Autenticación anónima
+        let userId = null;
         firebase.auth().signInAnonymously().then((userCredential) => {
             userId = userCredential.user.uid;
             console.log("Usuario autenticado con ID:", userId);
@@ -154,61 +45,34 @@
             console.error("Error al autenticar usuario:", error);
         });
 
-        // Crear una nueva lista con la fecha y hora actual
-        const createNewList = () => {
-            console.log("Creando nueva lista...");
-            const dateCreated = new Date().toLocaleString();
-            const newListRef = db.push();
-            newListRef.set({
-                dateCreated: dateCreated,
-                user: userId
+        // Función para guardar un dato de prueba
+        const saveTestData = () => {
+            if (!userId) {
+                console.error("Usuario no autenticado. No se puede guardar el dato.");
+                return;
+            }
+
+            const testRef = firebase.database().ref("testData");
+            const newItemRef = testRef.push();
+            newItemRef.set({
+                user: userId,
+                message: "Dato de prueba",
+                timestamp: new Date().toLocaleString()
             }, (error) => {
                 if (error) {
-                    console.error("Error al crear lista:", error);
+                    console.error("Error al guardar el dato de prueba:", error);
                 } else {
-                    currentListId = newListRef.key;
-                    document.getElementById("listTitle").innerText = `Lista creada el ${dateCreated}`;
-                    document.getElementById("shoppingList").innerHTML = "";
-                    console.log("Lista nueva creada con ID:", currentListId);
+                    console.log("Dato de prueba guardado con éxito en Firebase.");
                 }
             });
         };
 
-        // Función para agregar artículo a la lista actual
-        const addItem = () => {
-            if (!currentListId) {
-                alert("Primero crea una lista nueva.");
-                console.log("No hay una lista creada. Crea una lista nueva primero.");
-                return;
-            }
-            const itemInput = document.getElementById("itemInput");
-            const itemName = itemInput.value.trim();
-            if (itemName) {
-                const dateAdded = new Date().toLocaleString();
-                db.child(currentListId).child("items").push({
-                    name: itemName,
-                    bought: false,
-                    date: dateAdded,
-                    user: userId
-                });
-                itemInput.value = "";
-                console.log(`Artículo "${itemName}" añadido a la lista con ID:`, currentListId);
-            } else {
-                console.log("Campo de artículo vacío. No se añadió ningún artículo.");
-            }
-        };
-
-        document.getElementById("newListButton").addEventListener("click", createNewList);
-        document.getElementById("itemInput").addEventListener("keydown", (event) => {
-            if (event.key === "Enter") {
-                event.preventDefault();
-                addItem();
-            }
-        });
-        document.getElementById("addButton").addEventListener("click", addItem);
+        // Asignar función al botón de prueba
+        document.getElementById("testButton").addEventListener("click", saveTestData);
     </script>
 </body>
 </html>
+
 
 
 
