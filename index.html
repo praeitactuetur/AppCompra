@@ -238,4 +238,13 @@
                 deleteButton.addEventListener("click", () => {
                     db.child(itemId).remove();
                 });
-                buttons.append
+                buttons.appendChild(deleteButton);
+
+                li.appendChild(buttons);
+                shoppingList.appendChild(li);
+            });
+        });
+    </script>
+</body>
+</html>
+
