@@ -57,8 +57,8 @@
             padding: 5px;
         }
 
-        /* Botón de agregar */
-        #addButton {
+        /* Botones de agregar y lista nueva */
+        #addButton, #newListButton {
             width: 100%;
             padding: 12px;
             font-size: 1em;
@@ -70,7 +70,7 @@
             cursor: pointer;
             transition: background-color 0.3s;
         }
-        #addButton:hover {
+        #addButton:hover, #newListButton:hover {
             background-color: #218838;
         }
 
@@ -117,15 +117,18 @@
     <!-- Firebase App -->
     <script src="https://www.gstatic.com/firebasejs/8.6.8/firebase-app.js"></script>
     <script src="https://www.gstatic.com/firebasejs/8.6.8/firebase-database.js"></script>
+    <script src="https://www.gstatic.com/firebasejs/8.6.8/firebase-auth.js"></script>
 </head>
 <body>
     <div id="app">
         <h2>Lista de la Compra</h2>
+        <button id="newListButton">Lista Nueva</button>
         <div id="inputContainer">
             <input type="text" id="itemInput" placeholder="Añadir artículo...">
             <button id="voiceButton">🎤</button>
         </div>
         <button id="addButton">Añadir a la lista</button>
+        <div id="listTitle"></div>
         <ul id="shoppingList"></ul>
     </div>
 
@@ -144,29 +147,67 @@
         
         // Inicializar Firebase
         firebase.initializeApp(firebaseConfig);
-        const db = firebase.database().ref("shoppingList");
+        const db = firebase.database().ref("shoppingLists");
+        let userId;
+        let currentListId = null;  // Para identificar la lista actual
 
-        // Función para agregar artículo
+        // Autenticación anónima para identificar al usuario
+        firebase.auth().signInAnonymously().then((userCredential) => {
+            userId = userCredential.user.uid;
+            console.log("Usuario identificado:", userId);
+        }).catch((error) => {
+            console.error("Error al autenticar usuario:", error);
+        });
+
+        // Crear una nueva lista con la fecha y hora actual
+        const createNewList = () => {
+            const dateCreated = new Date().toLocaleString();
+            const newListRef = db.push();
+            newListRef.set({
+                dateCreated: dateCreated,
+                user: userId
+            }, (error) => {
+                if (error) {
+                    console.error("Error al crear lista:", error);
+                } else {
+                    currentListId = newListRef.key;  // Guardar el ID de la lista actual
+                    document.getElementById("listTitle").innerText = `Lista creada el ${dateCreated}`;
+                    document.getElementById("shoppingList").innerHTML = "";  // Limpiar la lista actual en pantalla
+                    console.log("Lista nueva creada con ID:", currentListId);
+                }
+            });
+        };
+
+        // Función para agregar artículo a la lista actual
         const addItem = () => {
-            console.log("Botón 'Añadir a la lista' presionado");
+            if (!currentListId) {
+                alert("Primero crea una lista nueva.");
+                return;
+            }
             const itemInput = document.getElementById("itemInput");
             const itemName = itemInput.value.trim();
             if (itemName) {
                 const dateAdded = new Date().toLocaleString(); // Fecha y hora de la acción
-                db.push({
+                db.child(currentListId).child("items").push({
                     name: itemName,
                     bought: false,
-                    date: dateAdded
-                }, (error) => {
-                    if (error) {
-                        console.error("Error al guardar el artículo:", error);
-                    } else {
-                        console.log("Artículo guardado en Firebase:", itemName);
-                    }
+                    date: dateAdded,
+                    user: userId
                 });
                 itemInput.value = "";
             }
         };
+
+        // Botón de nueva lista
+        document.getElementById("newListButton").addEventListener("click", createNewList);
+
+        // Añadir artículo al presionar "Enter"
+        document.getElementById("itemInput").addEventListener("keydown", (event) => {
+            if (event.key === "Enter") {
+                event.preventDefault();  // Evitar el comportamiento predeterminado
+                addItem();
+            }
+        });
 
         // Botón de agregar artículo
         document.getElementById("addButton").addEventListener("click", addItem);
@@ -175,7 +216,6 @@
         const voiceButton = document.getElementById("voiceButton");
         const itemInput = document.getElementById("itemInput");
 
-        // Verificar si el navegador soporta la API de reconocimiento de voz
         if ('webkitSpeechRecognition' in window) {
             const recognition = new webkitSpeechRecognition();
             recognition.lang = 'es-ES';
@@ -194,47 +234,49 @@
             voiceButton.title = "Tu navegador no soporta el reconocimiento de voz.";
         }
 
-        // Renderizar lista en tiempo real
+        // Renderizar artículos en tiempo real
         db.on("value", (snapshot) => {
             const shoppingList = document.getElementById("shoppingList");
             shoppingList.innerHTML = "";  // Limpiar lista antes de renderizar
-            snapshot.forEach((childSnapshot) => {
-                const item = childSnapshot.val();
-                const itemId = childSnapshot.key;
+            if (currentListId && snapshot.child(currentListId).exists()) {
+                const itemsSnapshot = snapshot.child(currentListId).child("items");
+                itemsSnapshot.forEach((childSnapshot) => {
+                    const item = childSnapshot.val();
+                    const itemId = childSnapshot.key;
 
-                const li = document.createElement("li");
-                li.className = item.bought ? "bought" : "";
+                    const li = document.createElement("li");
+                    li.className = item.bought ? "bought" : "";
 
-                // Mostrar nombre del artículo, usuario y fecha
-                const itemText = document.createElement("span");
-                itemText.textContent = `${item.name} - ${item.date}`;
-                li.appendChild(itemText);
+                    // Mostrar nombre del artículo, usuario y fecha
+                    const itemText = document.createElement("span");
+                    itemText.textContent = `${item.name} - ${item.date}`;
+                    li.appendChild(itemText);
 
-                // Botones de marcar y eliminar
-                const buttons = document.createElement("div");
+                    // Botones de marcar y eliminar
+                    const buttons = document.createElement("div");
 
-                const toggleButton = document.createElement("button");
-                toggleButton.className = "button toggle";
-                toggleButton.textContent = item.bought ? "Desmarcar" : "Comprado";
-                toggleButton.addEventListener("click", () => {
-                    db.child(itemId).update({ bought: !item.bought });
+                    const toggleButton = document.createElement("button");
+                    toggleButton.className = "button toggle";
+                    toggleButton.textContent = item.bought ? "Desmarcar" : "Comprado";
+                    toggleButton.addEventListener("click", () => {
+                        db.child(currentListId).child("items").child(itemId).update({ bought: !item.bought });
+                    });
+                    buttons.appendChild(toggleButton);
+
+                    const deleteButton = document.createElement("button");
+                    deleteButton.className = "button delete";
+                    deleteButton.textContent = "Eliminar";
+                    deleteButton.addEventListener("click", () => {
+                        db.child(currentListId).child("items").child(itemId).remove();
+                    });
+                    buttons.appendChild(deleteButton);
+
+                    li.appendChild(buttons);
+                    shoppingList.appendChild(li);
                 });
-                buttons.appendChild(toggleButton);
-
-                const deleteButton = document.createElement("button");
-                deleteButton.className = "button delete";
-                deleteButton.textContent = "Eliminar";
-                deleteButton.addEventListener("click", () => {
-                    db.child(itemId).remove();
-                });
-                buttons.appendChild(deleteButton);
-
-                li.appendChild(buttons);
-                shoppingList.appendChild(li);
-            });
+            }
         });
     </script>
 </body>
 </html>
-
 
