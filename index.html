@@ -161,6 +161,7 @@
 
         // Crear una nueva lista con la fecha y hora actual
         const createNewList = () => {
+            console.log("Intentando crear nueva lista...");
             const dateCreated = new Date().toLocaleString();
             const newListRef = db.push();
             newListRef.set({
@@ -182,6 +183,7 @@
         const addItem = () => {
             if (!currentListId) {
                 alert("Primero crea una lista nueva.");
+                console.log("No hay una lista creada. Crea una lista nueva primero.");
                 return;
             }
             const itemInput = document.getElementById("itemInput");
@@ -195,6 +197,9 @@
                     user: userId
                 });
                 itemInput.value = "";
+                console.log(`Artículo "${itemName}" añadido a la lista con ID:`, currentListId);
+            } else {
+                console.log("Campo de artículo vacío. No se añadió ningún artículo.");
             }
         };
 
@@ -279,4 +284,5 @@
     </script>
 </body>
 </html>
+
 
