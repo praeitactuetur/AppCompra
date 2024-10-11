@@ -158,6 +158,7 @@
 
         // Función para agregar artículo
         const addItem = () => {
+            console.log("Botón 'Añadir a la lista' presionado");
             const itemInput = document.getElementById("itemInput");
             const itemName = itemInput.value.trim();
             if (itemName) {
@@ -167,6 +168,12 @@
                     bought: false,
                     date: dateAdded,
                     user: userId
+                }, (error) => {
+                    if (error) {
+                        console.error("Error al guardar el artículo:", error);
+                    } else {
+                        console.log("Artículo guardado en Firebase:", itemName);
+                    }
                 });
                 itemInput.value = "";
             }
@@ -231,13 +238,4 @@
                 deleteButton.addEventListener("click", () => {
                     db.child(itemId).remove();
                 });
-                buttons.appendChild(deleteButton);
-
-                li.appendChild(buttons);
-                shoppingList.appendChild(li);
-            });
-        });
-    </script>
-</body>
-</html>
-
+                buttons.append
