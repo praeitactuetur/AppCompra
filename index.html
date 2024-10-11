@@ -153,6 +153,7 @@
             if (itemName) {
                 db.push({ name: itemName, bought: false });
                 itemInput.value = "";
+                itemInput.focus();  // Vuelve el cursor al cuadro de entrada
             }
         });
 
@@ -224,5 +225,3 @@
     </script>
 </body>
 </html>
-
-
