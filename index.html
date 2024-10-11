@@ -172,13 +172,6 @@
             }
         };
 
-        // Añadir evento de tecla para la tecla "Enter"
-        document.getElementById("itemInput").addEventListener("keypress", (event) => {
-            if (event.key === "Enter") {
-                addItem();
-            }
-        });
-
         // Botón de agregar artículo
         document.getElementById("addButton").addEventListener("click", addItem);
 
@@ -189,21 +182,18 @@
         // Verificar si el navegador soporta la API de reconocimiento de voz
         if ('webkitSpeechRecognition' in window) {
             const recognition = new webkitSpeechRecognition();
-            recognition.lang = 'es-ES';  // Idioma español
+            recognition.lang = 'es-ES';
             recognition.interimResults = false;
 
-            // Evento cuando se detecta un resultado de voz
             recognition.onresult = (event) => {
                 const transcript = event.results[0][0].transcript;
                 itemInput.value = transcript;
             };
 
-            // Iniciar reconocimiento de voz al hacer clic en el botón de micrófono
             voiceButton.addEventListener("click", () => {
                 recognition.start();
             });
         } else {
-            // Si el navegador no soporta la API, deshabilitamos el botón de voz
             voiceButton.disabled = true;
             voiceButton.title = "Tu navegador no soporta el reconocimiento de voz.";
         }
