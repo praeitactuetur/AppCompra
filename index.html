@@ -93,7 +93,123 @@
             cursor: pointer;
             border: none;
             border-radius: 5px;
-    
+            color: white;
+        }
+        .toggle { background-color: #ffc107; }
+        .toggle:hover { background-color: #e0a800; }
+        .delete { background-color: #dc3545; }
+        .delete:hover { background-color: #c82333; }
+    </style>
+    <script src="https://www.gstatic.com/firebasejs/8.6.8/firebase-app.js"></script>
+    <script src="https://www.gstatic.com/firebasejs/8.6.8/firebase-database.js"></script>
+    <script src="https://www.gstatic.com/firebasejs/8.6.8/firebase-auth.js"></script>
+</head>
+<body>
+    <div id="app">
+        <h2>Lista de la Compra</h2>
+        <button id="newListButton">Lista Nueva</button>
+        <div id="inputContainer">
+            <input type="text" id="itemInput" placeholder="Añadir artículo...">
+            <button id="voiceButton">🎤</button>
+        </div>
+        <button id="addButton">Añadir a la lista</button>
+        <div id="listTitle"></div>
+        <ul id="shoppingList"></ul>
+    </div>
+
+    <script>
+        // Configuración de Firebase
+        const firebaseConfig = {
+            apiKey: "AIzaSyAr-t7HI2o9Ty-Bj4lprXOp0RVRQaMW3qg",
+            authDomain: "lista-de-la-compra-6fbd5.firebaseapp.com",
+            databaseURL: "https://lista-de-la-compra-6fbd5-default-rtdb.firebaseio.com",
+            projectId: "lista-de-la-compra-6fbd5",
+            storageBucket: "lista-de-la-compra-6fbd5.appspot.com",
+            messagingSenderId: "427885773780",
+            appId: "1:427885773780:web:fe080ad539f1d735854c41",
+            measurementId: "G-BGYH085F18"
+        };
+        
+        // Inicializar Firebase
+        firebase.initializeApp(firebaseConfig);
+        
+        // Probar conexión a Firebase
+        firebase.database().ref(".info/connected").on("value", (snapshot) => {
+            if (snapshot.val() === true) {
+                console.log("Conexión exitosa a Firebase");
+            } else {
+                console.error("No se pudo conectar a Firebase");
+            }
+        });
+
+        const db = firebase.database().ref("shoppingLists");
+        let userId;
+        let currentListId = null;
+
+        // Autenticación anónima para identificar al usuario
+        firebase.auth().signInAnonymously().then((userCredential) => {
+            userId = userCredential.user.uid;
+            console.log("Usuario autenticado con ID:", userId);
+        }).catch((error) => {
+            console.error("Error al autenticar usuario:", error);
+        });
+
+        // Crear una nueva lista con la fecha y hora actual
+        const createNewList = () => {
+            console.log("Creando nueva lista...");
+            const dateCreated = new Date().toLocaleString();
+            const newListRef = db.push();
+            newListRef.set({
+                dateCreated: dateCreated,
+                user: userId
+            }, (error) => {
+                if (error) {
+                    console.error("Error al crear lista:", error);
+                } else {
+                    currentListId = newListRef.key;
+                    document.getElementById("listTitle").innerText = `Lista creada el ${dateCreated}`;
+                    document.getElementById("shoppingList").innerHTML = "";
+                    console.log("Lista nueva creada con ID:", currentListId);
+                }
+            });
+        };
+
+        // Función para agregar artículo a la lista actual
+        const addItem = () => {
+            if (!currentListId) {
+                alert("Primero crea una lista nueva.");
+                console.log("No hay una lista creada. Crea una lista nueva primero.");
+                return;
+            }
+            const itemInput = document.getElementById("itemInput");
+            const itemName = itemInput.value.trim();
+            if (itemName) {
+                const dateAdded = new Date().toLocaleString();
+                db.child(currentListId).child("items").push({
+                    name: itemName,
+                    bought: false,
+                    date: dateAdded,
+                    user: userId
+                });
+                itemInput.value = "";
+                console.log(`Artículo "${itemName}" añadido a la lista con ID:`, currentListId);
+            } else {
+                console.log("Campo de artículo vacío. No se añadió ningún artículo.");
+            }
+        };
+
+        document.getElementById("newListButton").addEventListener("click", createNewList);
+        document.getElementById("itemInput").addEventListener("keydown", (event) => {
+            if (event.key === "Enter") {
+                event.preventDefault();
+                addItem();
+            }
+        });
+        document.getElementById("addButton").addEventListener("click", addItem);
+    </script>
+</body>
+</html>
+
 
 
 
