@@ -117,7 +117,6 @@
     <!-- Firebase App -->
     <script src="https://www.gstatic.com/firebasejs/8.6.8/firebase-app.js"></script>
     <script src="https://www.gstatic.com/firebasejs/8.6.8/firebase-database.js"></script>
-    <script src="https://www.gstatic.com/firebasejs/8.6.8/firebase-auth.js"></script>
 </head>
 <body>
     <div id="app">
@@ -146,15 +145,6 @@
         // Inicializar Firebase
         firebase.initializeApp(firebaseConfig);
         const db = firebase.database().ref("shoppingList");
-        let userId;
-
-        // Autenticación anónima para identificar al usuario
-        firebase.auth().signInAnonymously().then((userCredential) => {
-            userId = userCredential.user.uid;
-            console.log("Usuario identificado:", userId);
-        }).catch((error) => {
-            console.error("Error al autenticar usuario:", error);
-        });
 
         // Función para agregar artículo
         const addItem = () => {
@@ -166,8 +156,7 @@
                 db.push({
                     name: itemName,
                     bought: false,
-                    date: dateAdded,
-                    user: userId
+                    date: dateAdded
                 }, (error) => {
                     if (error) {
                         console.error("Error al guardar el artículo:", error);
@@ -247,4 +236,5 @@
     </script>
 </body>
 </html>
+
 
