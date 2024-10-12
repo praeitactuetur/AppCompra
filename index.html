@@ -130,6 +130,15 @@
         const db = firebase.database().ref("shoppingList");
         let userId;
 
+        // Verificar conexión a Firebase
+        firebase.database().ref(".info/connected").on("value", (snapshot) => {
+            if (snapshot.val() === true) {
+                console.log("Conexión exitosa a Firebase");
+            } else {
+                console.error("No se pudo conectar a Firebase");
+            }
+        });
+
         // Autenticación anónima
         firebase.auth().signInAnonymously()
             .then((userCredential) => {
@@ -221,6 +230,5 @@
     </script>
 </body>
 </html>
-
 
 
