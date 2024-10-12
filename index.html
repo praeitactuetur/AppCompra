@@ -13,7 +13,7 @@
             align-items: center;
             height: 100vh;
             margin: 0;
-            background-image: url('https://i.imgur.com/yuFdTI0.jpeg');
+            background-image: url('https://i.imgur.com/yuFdTI0.jpeg'); /* Enlace directo a la imagen de Imgur */
             background-size: cover;
             background-position: center;
             backdrop-filter: blur(8px);
@@ -30,22 +30,38 @@
             text-align: center;
         }
 
-        /* Estilos para entrada y botones */
-        #itemInput, button {
+        /* Contenedor del input */
+        #inputContainer {
+            display: flex;
+            justify-content: space-between; /* Alinea correctamente el input y el botón */
+            align-items: center;
+        }
+
+        /* Estilos para el input de añadir artículo */
+        #itemInput {
             width: 100%;
             padding: 12px;
             font-size: 1em;
             margin-top: 10px;
+            margin-left: 0px; /* Ajustamos margen izquierdo para centrarlo mejor */
             border: none;
             border-radius: 5px;
+            box-sizing: border-box;
         }
 
         /* Botón de agregar */
         #addButton {
             background-color: #28a745;
             color: white;
+            width: 100%;
+            padding: 12px;
+            font-size: 1em;
+            margin-top: 10px;
+            border: none;
+            border-radius: 5px;
+            cursor: pointer;
         }
-        
+
         #addButton:hover {
             background-color: #218838;
         }
@@ -108,7 +124,9 @@
 <body>
     <div id="app">
         <h2>Lista de la Compra</h2>
-        <input type="text" id="itemInput" placeholder="Añadir artículo...">
+        <div id="inputContainer">
+            <input type="text" id="itemInput" placeholder="Añadir artículo...">
+        </div>
         <button id="addButton">Añadir a la lista</button>
         <ul id="shoppingList"></ul>
     </div>
@@ -136,7 +154,6 @@
             const itemInput = document.getElementById("itemInput");
             const itemName = itemInput.value.trim();
             if (itemName) {
-                // Obtener solo la fecha sin la hora
                 const dateAdded = new Date().toLocaleDateString(); 
                 db.push({ name: itemName, bought: false, dateAdded: dateAdded });
                 itemInput.value = "";
@@ -156,7 +173,7 @@
 
                 // Texto del artículo y fecha
                 const itemName = document.createElement("span");
-                itemName.textContent = `${item.name} - ${item.dateAdded}`; // Mostramos el nombre del artículo y la fecha
+                itemName.textContent = `${item.name} - ${item.dateAdded}`; 
                 li.appendChild(itemName);
 
                 // Contenedor de botones
@@ -187,5 +204,4 @@
     </script>
 </body>
 </html>
-
 
