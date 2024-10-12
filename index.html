@@ -5,6 +5,7 @@
     <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
     <title>Lista de la Compra</title>
     <style>
+        /* Estilos básicos */
         body {
             font-family: Arial, sans-serif;
             display: flex;
@@ -83,10 +84,6 @@
             border-radius: 8px;
             box-shadow: 0 2px 5px rgba(0, 0, 0, 0.1);
         }
-        .bought {
-            text-decoration: line-through;
-            color: grey;
-        }
         .button {
             padding: 8px;
             font-size: 0.9em;
@@ -145,6 +142,7 @@
 
         // Función para agregar artículo
         const addItem = () => {
+            console.log("Función addItem llamada");
             const itemInput = document.getElementById("itemInput");
             const itemName = itemInput.value.trim();
             if (itemName) {
@@ -154,8 +152,16 @@
                     bought: false,
                     date: dateAdded,
                     user: userId
+                })
+                .then(() => {
+                    console.log(`Artículo "${itemName}" añadido a Firebase.`);
+                    itemInput.value = "";  // Limpiar el campo después de añadir
+                })
+                .catch((error) => {
+                    console.error("Error al guardar el artículo en Firebase:", error);
                 });
-                itemInput.value = "";
+            } else {
+                console.log("El campo de artículo está vacío. No se agregó ningún artículo.");
             }
         };
 
@@ -167,32 +173,13 @@
             }
         });
 
-        // Botón de agregar artículo
-        document.getElementById("addButton").addEventListener("click", addItem);
+        // Evento de clic para el botón de agregar
+        document.getElementById("addButton").addEventListener("click", () => {
+            console.log("Botón 'Añadir a la lista' presionado");
+            addItem();
+        });
 
-        // Integrar API de Reconocimiento de Voz
-        const voiceButton = document.getElementById("voiceButton");
-        const itemInput = document.getElementById("itemInput");
-
-        if ('webkitSpeechRecognition' in window) {
-            const recognition = new webkitSpeechRecognition();
-            recognition.lang = 'es-ES';
-            recognition.interimResults = false;
-
-            recognition.onresult = (event) => {
-                const transcript = event.results[0][0].transcript;
-                itemInput.value = transcript;
-            };
-
-            voiceButton.addEventListener("click", () => {
-                recognition.start();
-            });
-        } else {
-            voiceButton.disabled = true;
-            voiceButton.title = "Tu navegador no soporta el reconocimiento de voz.";
-        }
-
-        // Renderizar lista en tiempo real
+        // Renderizar lista en tiempo real desde Firebase
         db.on("value", (snapshot) => {
             const shoppingList = document.getElementById("shoppingList");
             shoppingList.innerHTML = "";  // Limpiar lista antes de renderizar
@@ -234,4 +221,5 @@
     </script>
 </body>
 </html>
+
 
