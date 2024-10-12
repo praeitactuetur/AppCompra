@@ -136,7 +136,8 @@
             const itemInput = document.getElementById("itemInput");
             const itemName = itemInput.value.trim();
             if (itemName) {
-                db.push({ name: itemName, bought: false });
+                const dateAdded = new Date().toLocaleString(); // Obtenemos la fecha del sistema
+                db.push({ name: itemName, bought: false, dateAdded: dateAdded });
                 itemInput.value = "";
             }
         });
@@ -152,9 +153,9 @@
                 const li = document.createElement("li");
                 li.className = item.bought ? "bought" : "";
 
-                // Texto del artículo
+                // Texto del artículo y fecha
                 const itemName = document.createElement("span");
-                itemName.textContent = item.name;
+                itemName.textContent = `${item.name} (Añadido: ${item.dateAdded})`; // Mostramos el nombre del artículo y la fecha
                 li.appendChild(itemName);
 
                 // Contenedor de botones
@@ -185,6 +186,5 @@
     </script>
 </body>
 </html>
-
 
 
