@@ -136,7 +136,8 @@
             const itemInput = document.getElementById("itemInput");
             const itemName = itemInput.value.trim();
             if (itemName) {
-                const dateAdded = new Date().toLocaleString(); // Obtenemos la fecha del sistema
+                // Obtener solo la fecha sin la hora
+                const dateAdded = new Date().toLocaleDateString(); 
                 db.push({ name: itemName, bought: false, dateAdded: dateAdded });
                 itemInput.value = "";
             }
@@ -155,7 +156,7 @@
 
                 // Texto del artículo y fecha
                 const itemName = document.createElement("span");
-                itemName.textContent = `${item.name} (Añadido: ${item.dateAdded})`; // Mostramos el nombre del artículo y la fecha
+                itemName.textContent = `${item.name} - ${item.dateAdded}`; // Mostramos el nombre del artículo y la fecha
                 li.appendChild(itemName);
 
                 // Contenedor de botones
@@ -186,6 +187,5 @@
     </script>
 </body>
 </html>
-
 
 
